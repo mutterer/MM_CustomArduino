@@ -14,7 +14,7 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 
-String cmd = "" ;
+byte cmd ;
 int a = 100;     // a could be linked to a potentiometer on the device.
 boolean state = false;
 
@@ -27,22 +27,20 @@ void setup() {
 void loop()
 {
   if (Serial.available()) {
-    cmd = Serial.readString(); // no line ending so rely on timeout
+    cmd = Serial.read(); // no line ending so rely on timeout
     processCommand(cmd);
-    cmd = "";
   }
 }
 
 // only open, close and reset are implemented here
-void processCommand(String s) {
-  if (s.startsWith("@")) {
+void processCommand(byte s) {
+  if (s==0x80) {
    state = true;
-  } else if (s.startsWith("A")) {
+  } else if (s==0x81) {
        state = false;
 
-  } else if (s.startsWith("C")) {
+  } else {
        state = false;
-
   } 
   // update pixels according to state and intensity
   // MM sends a [0..100] value, map this to [0..255]
