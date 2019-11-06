@@ -17,8 +17,8 @@ byte cmd ;
 int r, g, b;
 int state;
 int mode;
-int mstart[] = {0, 2, 4, 6, 0, 4};
-int mstop[] = {7, 3, 5, 7, 3, 7};
+int mstart[] = {0, 0, 2, 4, 6, 0, 4};
+int mstop[] = {7, 1, 3, 5, 7, 3, 7};
 
 void setup() {
   Serial.begin(9600);
@@ -28,7 +28,6 @@ void setup() {
   b = 100;
   state = 0;
   mode = 0;
-
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
   updateLEDs();
@@ -90,7 +89,9 @@ void processCommand(byte s) {
     } else if (s == 0x13) {
       r = 100; g = 00; b = 00;
     } else if (s == 0x14) {
-      mode = (mode + 1) % 5;
+      mode = (mode + 1) % 7;
+    } else if (s == 0x19) {
+      mode = 0;
     }
     Serial.write(s); // echo any other case
     Serial.write(0x0d);
@@ -102,8 +103,8 @@ void processCommand(byte s) {
 
 void updateLEDs() {
   for (int i = 0; i < NUMPIXELS; i++) {
-    double f = 2.55 * state;
-    // a could be linked to a potentiometer on the device.
+    double f = 2.55 * state; // this could be linked to a potentiometer on the device.
+    // turn off pixels that are not in the desired range or sector
     if ((i >= mstart[mode]) && (i <= mstop[mode])) {
       f = 2.55 * state;
     } else {
